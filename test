@@ -1,0 +1,7 @@
+variable "nat_ips" {
+  type        = list(string)
+  description = "List of self_links of external IPs. Changing this forces a new NAT to be created. Value of `nat_ip_allocate_option` is inferred based on nat_ips. If present set to MANUAL_ONLY, otherwise AUTO_ONLY."
+  default     = []
+}
+
+| nat\_ips | List of self\_links of external IPs. Changing this forces a new NAT to be created. Value of `nat_ip_allocate_option` is inferred based on nat\_ips. If present set to MANUAL\_ONLY, otherwise AUTO\_ONLY. | `list(string)` | `[]` | no |
