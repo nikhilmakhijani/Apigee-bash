@@ -1,0 +1,28 @@
+timeout: 2700s
+steps:
+- id: 'setup'
+  name: gcr.io/$PROJECT_ID/gjk-terragrunt:v1
+  entrypoint: bash
+  args:
+  - -c
+  - |
+    pwd
+    git clone https://source.developers.google.com/p/bootstrap-gojek/r/$REPO_NAME
+    tf_sa_email=${_TF_SA_EMAIL}
+    if [[ -n ${tf_sa_email} ]]; then
+      echo "Setting up gcloud for impersonation"
+      gcloud config set auth/impersonate_service_account $tf_sa_email
+    fi
+    cd $REPO_NAME && ls -ltr
+    echo ${BRANCH_NAME}
+    git checkout ${BRANCH_NAME} && ls -ltr
+    chmod 755 ./tg_wrapper.sh
+    changed_files=$(git diff-tree --no-commit-id --name-only -r ${COMMIT_SHA})
+    echo $changed_files
+    for file in $changed_files
+     do
+      dir=$(dirname $file)
+      if [[ ! "$dir" == "." ]] && [[ ! "$dir" == tf_modules/* ]]; then
+       bash ./tg_wrapper.sh ${_TF_ACTION}_all ${BRANCH_NAME} ${PROJECT_ID} $dir || exit 1
+      fi
+     done
